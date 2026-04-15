@@ -6,12 +6,15 @@ on:
   pull_request:
     branches: [main, develop]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   backend-api:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: navima/backend/api
+        working-directory: backend/api
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -29,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: navima/backend/worker
+        working-directory: backend/worker
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -45,12 +48,12 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: navima/frontend/web
+        working-directory: frontend/web
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
@@ -60,12 +63,12 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: navima/frontend/admin
+        working-directory: frontend/admin
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
@@ -76,12 +79,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build API image
-        run: docker build -f navima/deploy/build/api/Dockerfile -t navima-api:latest navima
+        run: docker build -f deploy/build/api/Dockerfile -t navima-api:latest .
       - name: Build Worker image
-        run: docker build -f navima/deploy/build/worker/Dockerfile -t navima-worker:latest navima
+        run: docker build -f deploy/build/worker/Dockerfile -t navima-worker:latest .
       - name: Build Sandbox image
-        run: docker build -f navima/deploy/build/sandbox/Dockerfile -t navima-sandbox:latest navima
+        run: docker build -f deploy/build/sandbox/Dockerfile -t navima-sandbox:latest .
       - name: Build Web image
-        run: docker build -f navima/deploy/build/web/Dockerfile -t navima-web:latest navima
+        run: docker build -f deploy/build/web/Dockerfile -t navima-web:latest .
       - name: Build Admin image
-        run: docker build -f navima/deploy/build/admin/Dockerfile -t navima-admin:latest navima
+        run: docker build -f deploy/build/admin/Dockerfile -t navima-admin:latest .
