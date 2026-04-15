@@ -6,6 +6,11 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends gcc libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Install shared package first
+COPY backend/shared/pyproject.toml /shared/pyproject.toml
+COPY backend/shared/navima_shared /shared/navima_shared
+RUN pip install --no-cache-dir /shared
+
 COPY backend/api/pyproject.toml ./
 COPY backend/api/app ./app
 RUN pip install --no-cache-dir .[dev]

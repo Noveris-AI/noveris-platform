@@ -3,6 +3,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from sqlalchemy import text
+
+from navima_shared.db.session import engine
 
 ENABLE_API_DOCS = os.getenv("ENABLE_API_DOCS", "true").lower() == "true"
 
@@ -12,6 +15,7 @@ async def lifespan(app: FastAPI):
     # startup
     yield
     # shutdown
+    await engine.dispose()
 
 
 app = FastAPI(
@@ -31,8 +35,15 @@ async def health_live() -> JSONResponse:
 
 @app.get("/health/ready", tags=["health"])
 async def health_ready() -> JSONResponse:
-    # TODO(Module 2+): add DB and Redis connectivity checks
-    return JSONResponse(content={"status": "ok"})
+    try:
+        async with engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+        return JSONResponse(content={"status": "ok"})
+    except Exception:
+        return JSONResponse(
+            status_code=503,
+            content={"status": "not_ready", "detail": "database_unavailable"},
+        )
 
 
 if __name__ == "__main__":
