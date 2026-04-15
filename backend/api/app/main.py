@@ -1,30 +1,24 @@
-import os
-from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from navima_shared.db.session import engine
 from sqlalchemy import text
 
-ENABLE_API_DOCS = os.getenv("ENABLE_API_DOCS", "true").lower() == "true"
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # startup
-    yield
-    # shutdown
-    await engine.dispose()
-
+from app.core.config import settings
+from app.core.cors import add_cors_middleware
+from app.core.errors import NavimaError, navima_exception_handler
+from app.core.events import lifespan
 
 app = FastAPI(
     title="Navima API",
     version="0.1.0",
-    docs_url="/docs" if ENABLE_API_DOCS else None,
-    redoc_url="/redoc" if ENABLE_API_DOCS else None,
-    openapi_url="/openapi.json" if ENABLE_API_DOCS else None,
+    docs_url="/docs" if settings.enable_api_docs else None,
+    redoc_url="/redoc" if settings.enable_api_docs else None,
+    openapi_url="/openapi.json" if settings.enable_api_docs else None,
     lifespan=lifespan,
 )
+
+add_cors_middleware(app)
+app.add_exception_handler(NavimaError, navima_exception_handler)
 
 
 @app.get("/health/live", tags=["health"])
@@ -47,4 +41,5 @@ async def health_ready() -> JSONResponse:
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
