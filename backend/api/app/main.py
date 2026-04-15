@@ -3,9 +3,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from sqlalchemy import text
-
 from navima_shared.db.session import engine
+from sqlalchemy import text
 
 ENABLE_API_DOCS = os.getenv("ENABLE_API_DOCS", "true").lower() == "true"
 
