@@ -15,6 +15,22 @@ jobs:
     defaults:
       run:
         working-directory: backend/api
+    env:
+      DB_URL: postgresql+asyncpg://navima:navima@localhost:5432/navima
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: navima
+          POSTGRES_PASSWORD: navima
+          POSTGRES_DB: navima
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -34,6 +50,22 @@ jobs:
     defaults:
       run:
         working-directory: backend/worker
+    env:
+      DB_URL: postgresql+asyncpg://navima:navima@localhost:5432/navima
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: navima
+          POSTGRES_PASSWORD: navima
+          POSTGRES_DB: navima
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
